@@ -1,19 +1,19 @@
 export const cores = {
-  verde: '#00A859',
-  verdeEscuro: '#00803F',
-  verdeClaro: '#E7F7EE',
-  texto: '#3A4A42',
-  textoSuave: '#6B7C73',
-  borda: '#D7E0DA',
-  fundo: '#F1F5F3',
+  verde: '#00A859',   
+  verdeEscuro: '#007F3E',
+  verdeClaro: '#EAF7F0',
+  fundo: '#F6F9F7',
   branco: '#FFFFFF',
-  vermelho: '#C0392B',
-  amareloBg: '#FFF8E6',
+  texto: '#1A2E22',
+  textoSuave: '#697E71',
+  borda: 'rgba(0, 127, 62, 0.08)',
+  amareloBg: '#FFF9E6',
+  vermelho: '#DC2626',
 };
 
 export const espaco = {
-  xs: 6,
-  sm: 10,
+  xs: 4,
+  sm: 8,
   md: 16,
   lg: 24,
   xl: 32,
@@ -21,5 +21,6 @@ export const espaco = {
 
 export const raio = {
   campo: 10,
-  card: 14,
+  card: 16,
+  badge: 30,
 };

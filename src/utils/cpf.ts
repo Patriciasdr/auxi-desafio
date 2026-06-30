@@ -1,9 +1,9 @@
-// Remove tudo que não for dígito
+
 export function soNumeros(valor: string): string {
   return valor.replace(/\D/g, '');
 }
 
-// Aplica a máscara 000.000.000-00 progressivamente
+
 export function aplicarMascaraCpf(valor: string): string {
   const n = soNumeros(valor).slice(0, 11);
   return n
@@ -12,11 +12,11 @@ export function aplicarMascaraCpf(valor: string): string {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
-// Valida os dígitos verificadores do CPF
+
 export function cpfValido(valor: string): boolean {
   const cpf = soNumeros(valor);
   if (cpf.length !== 11) return false;
-  if (/^(\d)\1{10}$/.test(cpf)) return false; // rejeita 111.111.111-11 etc.
+  if (/^(\d)\1{10}$/.test(cpf)) return false;
 
   const calcDigito = (base: string, pesoInicial: number): number => {
     let soma = 0;

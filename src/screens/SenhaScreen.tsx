@@ -5,7 +5,7 @@ import { RootStackParamList } from '../../App';
 import { authService } from '../services/authService';
 import { CampoTexto } from '../components/CampoTexto';
 import { Botao } from '../components/Botao';
-import { cores, espaco, raio } from '../theme/tokens'; // <-- Importamos os tokens diretamente
+import { cores, espaco, raio } from '../theme/tokens'; 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Senha'>;
 
@@ -17,7 +17,6 @@ export function SenhaScreen({ route, navigation }: Props) {
   const [carregando, setCarregando] = useState(false);
 
   async function entrar() {
-    // Validação simplificada: o desafio aceita qualquer senha preenchida
     if (senha.trim().length === 0) {
       setErro('A senha não pode estar vazia.');
       return;
@@ -68,7 +67,7 @@ export function SenhaScreen({ route, navigation }: Props) {
         <CampoTexto
           rotulo="Senha"
           placeholder="Digite sua senha"
-          secureTextEntry={!mostrar}     /* Oculta os caracteres com asteriscos */
+          secureTextEntry={!mostrar}  
           value={senha}
           onChangeText={(t) => { 
             setSenha(t); 
@@ -92,18 +91,20 @@ export function SenhaScreen({ route, navigation }: Props) {
   );
 }
 
-// 👇 Estilos unificados na base do componente, consumindo o padrão de design unificado
 const estilos = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: cores.fundo, 
     justifyContent: 'center', 
+    alignItems: 'center', 
     padding: espaco.lg 
   },
   card: { 
     backgroundColor: cores.branco, 
     borderRadius: raio.card, 
     padding: espaco.lg,
+    width: '100%',        
+    maxWidth: 400,        
     shadowColor: cores.texto,
     shadowOpacity: 0.08,
     shadowRadius: 35,

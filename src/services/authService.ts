@@ -15,7 +15,6 @@ export interface Condominio {
 
 const baseClientes: Record<string, { nome: string }> = {
   '11111111111': { nome: 'Patricia Souza' },
-  '22222222222': { nome: 'Guilherme Hahn' },
 };
 
 function delay<T>(valor: T, ms = 700): Promise<T> {
@@ -45,7 +44,7 @@ export const authService = {
     return delay(senha.trim().length > 0);
   },
 
-  // Mantido idêntico para não gerar erros nas suas outras telas
+  
   async listarCondominios(): Promise<Condominio[]> {
     return delay([
       { id: 'c1', nome: 'Residencial Jardim das Aces', endereco: 'Av. Ipiranga, 1200 — Porto Alegre/RS', papel: 'Síndico' },

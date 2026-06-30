@@ -14,7 +14,8 @@ export type RootStackParamList = {
   Identificacao: undefined;
   Senha: { nome: string; cpfMascarado: string };
   Condominios: { nome: string };
-  Dashboard: { condominioNome: string; endereco: string; papel: string };
+  // 🌟 O 'nome' foi adicionado aqui na linha de baixo:
+  Dashboard: { condominioNome: string; endereco: string; papel: string; nome: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

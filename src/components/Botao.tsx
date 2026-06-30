@@ -29,8 +29,10 @@ const estilos = StyleSheet.create({
   botao: {
     backgroundColor: cores.verde,
     paddingVertical: 14,
+    width: '100%',
     borderRadius: raio.campo,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: espaco.md,
   },
   desabilitado: { opacity: 0.5 },
