@@ -12,7 +12,6 @@ export function useIdentificacao(navigation: NavigationProp) {
   const [carregando, setCarregando] = useState(false);
   const [bloqueado, setBloqueado] = useState(false);
 
-
   function lidarComMudancaCpf(texto: string) {
     setCpf(aplicarMascaraCpf(texto));
     setErro('');
@@ -36,6 +35,7 @@ export function useIdentificacao(navigation: NavigationProp) {
         navigation.navigate('Senha', {
           nome: r.nome!,
           cpfMascarado: r.cpfMascarado!,
+          cpf: numeros,
         });
       } else {
         setBloqueado(true);

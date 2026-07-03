@@ -1,21 +1,27 @@
 import React, { useState, useLayoutEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { useCondominios } from '../hooks/useCondominios';
 import { cores, espaco, raio } from '../theme/tokens';
 import { ModalConta } from '../components/ModalConta';
+import { Condominio } from '../services/authService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Condominios'>;
 
-const listaCondominios = [
-  { id: 'c1', nome: 'Residencial Jardim das Acacia', endereco: 'Av. Ipiranga, 1200 — Porto Alegre/RS', papel: 'Síndico' },
-  { id: 'c2', nome: 'Edifício Mont Blanc', endereco: 'R. dos Andradas, 455 — Porto Alegre/RS', papel: 'Proprietário' },
-  { id: 'c3', nome: 'Condomínio Vista Verde', endereco: 'Av. Carlos Gomes, 890 — Porto Alegre/RS', papel: 'Morador' },
-];
-
 export function CondominiosScreen({ navigation, route }: Props) {
-  const { nome } = route.params;
+  const { nome, cpf } = route.params;
   const [modalConta, setModalConta] = useState(false);
+  
+  const { condominiosDoBanco, carregando, deslogar } = useCondominios({
+    cpf,
+    onLogoutSucesso: () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Identificacao' }],
+      });
+    }
+  });
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,10 +31,7 @@ export function CondominiosScreen({ navigation, route }: Props) {
         <View style={estilos.headerRightContainer}>
           
           <TouchableOpacity 
-            onPress={() => navigation.reset({
-              index: 0,
-              routes: [{ name: 'Identificacao' }],
-            })} 
+            onPress={deslogar} 
             style={estilos.btnSairHeader}
             activeOpacity={0.7}
           >
@@ -46,9 +49,9 @@ export function CondominiosScreen({ navigation, route }: Props) {
         </View>
       ),
     });
-  }, [navigation, nome]);
+  }, [navigation, nome, deslogar]);
 
-  function acessarDashboard(condominio: typeof listaCondominios[0]) {
+  function acessarDashboard(condominio: Condominio) {
     navigation.navigate('Dashboard', {
       condominioNome: condominio.nome,
       endereco: condominio.endereco,
@@ -68,35 +71,45 @@ export function CondominiosScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <FlatList
-          data={listaCondominios}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity 
-                style={estilos.card} 
-                activeOpacity={0.7} 
-                onPress={() => acessarDashboard(item)}
-              >
-                <View style={estilos.icone}>
-                  <Text style={estilos.iconePredio}>🏢</Text>
-                </View>
-
-                <View style={estilos.info}>
-                  <Text style={estilos.nomeCond} numberOfLines={1}>{item.nome}</Text>
-                  <Text style={estilos.end} numberOfLines={1}>{item.endereco}</Text>
-                  
-                  <View style={estilos.badge}>
-                    <Text style={estilos.papelTexto}>{item.papel}</Text>
+        {carregando ? (
+          <View style={estilos.loadingContainer}>
+            <ActivityIndicator size="large" color={cores.verde} />
+            <Text style={estilos.loadingTexto}>Carregando seus condomínios...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={condominiosDoBanco}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            ListEmptyComponent={
+              <Text style={estilos.txtVazio}>Nenhum condomínio encontrado para este perfil.</Text>
+            }
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity 
+                  style={estilos.card} 
+                  activeOpacity={0.7} 
+                  onPress={() => acessarDashboard(item)}
+                >
+                  <View style={estilos.icone}>
+                    <Text style={estilos.iconePredio}>🏢</Text>
                   </View>
-                </View>
 
-                <Text style={estilos.seta}>›</Text>
-              </TouchableOpacity>
-            );
-          }}
-        />
+                  <View style={estilos.info}>
+                    <Text style={estilos.nomeCond} numberOfLines={1}>{item.nome}</Text>
+                    <Text style={estilos.end} numberOfLines={1}>{item.endereco}</Text>
+                    
+                    <View style={estilos.badge}>
+                      <Text style={estilos.papelTexto}>{item.papel}</Text>
+                    </View>
+                  </View>
+
+                  <Text style={estilos.seta}>›</Text>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        )}
       </View>
 
       <ModalConta visivel={modalConta} aoFechar={() => setModalConta(false)} />
@@ -122,18 +135,10 @@ const estilos = StyleSheet.create({
   info: { flex: 1, minWidth: 0 },
   nomeCond: { fontSize: 16, fontWeight: '700', color: cores.texto, letterSpacing: -0.2, marginBottom: 2 },
   end: { fontSize: 12, color: cores.textoSuave, lineHeight: 16, marginBottom: 6 },
-  badge: { 
-    alignSelf: 'flex-start', 
-    paddingHorizontal: 10, 
-    paddingVertical: 3, 
-    borderRadius: raio.badge,
-    backgroundColor: 'rgba(0, 168, 89, 0.1)' 
-  },
-  papelTexto: { 
-    fontSize: 11, 
-    fontWeight: '700', 
-    letterSpacing: 0.2,
-    color: cores.verdeEscuro 
-  },
-  seta: { fontSize: 24, color: cores.textoSuave, fontWeight: '300', marginLeft: 8 }
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: raio.badge, backgroundColor: 'rgba(0, 168, 89, 0.1)' },
+  papelTexto: { fontSize: 11, fontWeight: '700', letterSpacing: 0.2, color: cores.verdeEscuro },
+  seta: { fontSize: 24, color: cores.textoSuave, fontWeight: '300', marginLeft: 8 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingTexto: { marginTop: 10, color: cores.textoSuave, fontSize: 14 },
+  txtVazio: { textAlign: 'center', color: cores.textoSuave, marginTop: 30, fontSize: 14 }
 });

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Pressable, Animated, useWindowDimensions } from 'react-native';
 import { cores } from '../theme/tokens';
 
 interface ModalContaProps {
@@ -8,60 +8,89 @@ interface ModalContaProps {
 }
 
 export function ModalConta({ visivel, aoFechar }: ModalContaProps) {
+  const { width: LARGURA_TELA } = useWindowDimensions();
+  const ehTelaGrande = LARGURA_TELA > 768;
+
+  const [mostrarModal, setMostrarModal] = useState(visivel);
+  const slideAnim = useRef(new Animated.Value(LARGURA_TELA)).current;
+
+  useEffect(() => {
+    if (visivel) {
+      setMostrarModal(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: LARGURA_TELA,
+        duration: 250,
+        useNativeDriver: true,
+      }).start(() => {
+        setMostrarModal(false);
+      });
+    }
+  }, [visivel, slideAnim, LARGURA_TELA]);
+
   return (
-    <Modal visible={visivel} transparent animationType="slide" onRequestClose={aoFechar}>
+    <Modal visible={mostrarModal} transparent animationType="fade" onRequestClose={aoFechar}>
       <View style={estilos.modalOverlay}>
-        <View style={estilos.modalContent}>
-          <View style={estilos.modalBarra} />
+        
+        <Pressable style={StyleSheet.absoluteFill} onPress={aoFechar} />
+        
+        <Animated.View style={[
+          estilos.sidebarContent, 
+          { 
+            width: ehTelaGrande ? 400 : '85%', 
+            transform: [{ translateX: slideAnim }] 
+          }
+        ]}>
           
-          <Text style={estilos.modalTitulo}>Configurações de Conta</Text>
+          <View style={estilos.headerVerde}>
+            <Text style={estilos.tituloMenu}>Configurações</Text>
+            <TouchableOpacity 
+              onPress={aoFechar} 
+              hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+            >
+              <Text style={estilos.iconeFechar}>✕</Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity 
-            style={estilos.modalOpcao} 
-            onPress={() => { aoFechar(); alert('Abrindo Alterar Foto de Perfil…'); }}
-            activeOpacity={0.7}
-          >
-            <View style={estilos.modalIconeFundo}>
-              <Text style={estilos.modalIcone}>📸</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={estilos.modalNome}>Alterar Foto de Perfil</Text>
-              <Text style={estilos.modalDesc}>Mude a imagem do seu usuário</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={estilos.opcoesContainer}>
+            
+            <TouchableOpacity style={estilos.modalOpcao} onPress={() => { aoFechar(); setTimeout(() => alert('Abrindo Alterar Foto de Perfil…'), 300); }} activeOpacity={0.7}>
+              <View style={estilos.modalIconeFundo}>
+                <Text style={estilos.modalIcone}>📸</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={estilos.modalNome}>Alterar Foto de Perfil</Text>
+                <Text style={estilos.modalDesc}>Mude a imagem do seu usuário</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={estilos.modalOpcao} 
-            onPress={() => { aoFechar(); alert('Abrindo Alterar Senha…'); }}
-            activeOpacity={0.7}
-          >
-            <View style={estilos.modalIconeFundo}>
-              <Text style={estilos.modalIcone}>🔑</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={estilos.modalNome}>Alterar Senha</Text>
-              <Text style={estilos.modalDesc}>Atualize sua credencial de acesso</Text>
-            </View>
-          </TouchableOpacity>
+            <TouchableOpacity style={estilos.modalOpcao} onPress={() => { aoFechar(); setTimeout(() => alert('Abrindo Alterar Senha…'), 300); }} activeOpacity={0.7}>
+              <View style={estilos.modalIconeFundo}>
+                <Text style={estilos.modalIcone}>🔑</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={estilos.modalNome}>Alterar Senha</Text>
+                <Text style={estilos.modalDesc}>Atualize sua credencial de acesso</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={estilos.modalOpcao} 
-            onPress={() => { aoFechar(); alert('Abrindo Dados Cadastrais…'); }}
-            activeOpacity={0.7}
-          >
-            <View style={estilos.modalIconeFundo}>
-              <Text style={estilos.modalIcone}>👤</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={estilos.modalNome}>Alterar Dados Cadastrais</Text>
-              <Text style={estilos.modalDesc}>Atualize suas informações pessoais</Text>
-            </View>
-          </TouchableOpacity>
+            <TouchableOpacity style={estilos.modalOpcao} onPress={() => { aoFechar(); setTimeout(() => alert('Abrindo Dados Cadastrais…'), 300); }} activeOpacity={0.7}>
+              <View style={estilos.modalIconeFundo}>
+                <Text style={estilos.modalIcone}>👤</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={estilos.modalNome}>Alterar Dados</Text>
+                <Text style={estilos.modalDesc}>Atualize suas informações pessoais</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={estilos.btnFecharModal} onPress={aoFechar}>
-            <Text style={estilos.btnFecharTexto}>Fechar</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -70,80 +99,83 @@ export function ModalConta({ visivel, aoFechar }: ModalContaProps) {
 const estilos = StyleSheet.create({
   modalOverlay: { 
     flex: 1, 
-    backgroundColor: 'rgba(26, 46, 34, 0.4)', 
+    backgroundColor: 'rgba(20, 35, 27, 0.45)',
+    flexDirection: 'row', 
     justifyContent: 'flex-end' 
   },
-  modalContent: { 
+  sidebarContent: { 
+    height: '100%', 
     backgroundColor: cores.branco, 
-    borderTopLeftRadius: 28, 
-    borderTopRightRadius: 28, 
-    padding: 24, 
-    paddingTop: 16, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.15, 
-    shadowRadius: 30, 
+    borderTopLeftRadius: 24,
+    borderBottomLeftRadius: 24, 
+    overflow: 'hidden', 
+    shadowColor: '#1A2E22', 
+    shadowOpacity: 0.08,
+    shadowRadius: 25, 
+    shadowOffset: { width: -4, height: 0 },
     elevation: 10 
   },
-  modalBarra: { 
-    width: 44, 
-    height: 5, 
-    backgroundColor: '#E2E8E4', 
-    borderRadius: 3, 
-    alignSelf: 'center', 
+  headerVerde: { 
+    backgroundColor: cores.verde, 
+    paddingTop: 64,
+    paddingBottom: 28, 
+    paddingHorizontal: 24, 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
     marginBottom: 20 
   },
-  modalTitulo: { 
-    fontSize: 20, 
+  tituloMenu: { 
+    fontSize: 22, 
     fontWeight: '800', 
-    color: cores.texto, 
-    marginBottom: 20, 
-    letterSpacing: -0.3 
+    color: cores.branco, 
+    letterSpacing: -0.5 
+  },
+  iconeFechar: { 
+    fontSize: 20, 
+    color: cores.branco, 
+    opacity: 0.85,
+    fontWeight: 'normal' 
+  },
+  opcoesContainer: { 
+    paddingHorizontal: 20,
+    gap: 4
   },
   modalOpcao: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     gap: 16, 
     padding: 16, 
-    backgroundColor: cores.fundo, 
-    borderRadius: 14, 
     marginBottom: 12, 
+    backgroundColor: '#FAFCFA',
+    borderRadius: 16, 
     borderWidth: 1, 
-    borderColor: cores.borda 
+    borderColor: cores.borda,
+    shadowColor: '#000',
+    shadowOpacity: 0.01,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
   },
   modalIconeFundo: { 
     width: 48, 
     height: 48, 
-    borderRadius: 12, 
+    borderRadius: 12,
     backgroundColor: cores.verdeClaro, 
     alignItems: 'center', 
-    justifyContent: 'center', 
-    borderWidth: 1, 
-    borderColor: cores.borda 
+    justifyContent: 'center' 
   },
   modalIcone: { 
-    fontSize: 22 
+    fontSize: 20 
   },
   modalNome: { 
-    fontSize: 16, 
+    fontSize: 15, 
     fontWeight: '700', 
     color: cores.texto, 
-    marginBottom: 2 
+    marginBottom: 3 
   },
   modalDesc: { 
     fontSize: 12, 
     color: cores.textoSuave, 
     lineHeight: 16 
-  },
-  btnFecharModal: { 
-    padding: 16, 
-    marginTop: 10, 
-    alignItems: 'center', 
-    backgroundColor: cores.verdeEscuro, 
-    borderRadius: 12 
-  },
-  btnFecharTexto: { 
-    color: cores.branco, 
-    fontWeight: '700', 
-    fontSize: 15 
   }
 });

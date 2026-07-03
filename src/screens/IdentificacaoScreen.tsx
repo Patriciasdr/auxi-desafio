@@ -6,7 +6,7 @@ import { CampoTexto } from '../components/CampoTexto';
 import { Botao } from '../components/Botao';
 import { ModalBloqueio } from '../components/ModalBloqueio';
 import { cores, espaco, raio } from '../theme/tokens'; 
-import { useIdentificacao } from '../hooks/useIdentificacao'; // 🌟 Importando o seu Hook!
+import { useIdentificacao } from '../hooks/useIdentificacao';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Identificacao'>;
 

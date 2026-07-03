@@ -1,8 +1,10 @@
+import { supabase } from './supabaseClient'; // 💡 Conexão com o banco
+
 export type StatusIdentificacao = 'ACESSO_DIRETO' | 'BLOQUEIO';
 
 export interface ResultadoIdentificacao {
   status: StatusIdentificacao;
-  nome?: string;       
+  nome?: string;
   cpfMascarado?: string;
 }
 
@@ -13,43 +15,83 @@ export interface Condominio {
   papel: string;
 }
 
-const baseClientes: Record<string, { nome: string }> = {
-  '11111111111': { nome: 'Patricia Souza' },
-};
-
-function delay<T>(valor: T, ms = 700): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(valor), ms));
-}
-
 export const authService = {
   async identificarPorCpf(cpfNumeros: string): Promise<ResultadoIdentificacao> {
-    const cliente = baseClientes[cpfNumeros];
-    
-    if (cliente) {
-      const cpfMascarado = '•••.•••.' + cpfNumeros.slice(6, 9) + '-' + cpfNumeros.slice(9);
-      
-      if (cpfNumeros === '22222222222') {
-        return delay({ status: 'BLOQUEIO', nome: cliente.nome });
+    try {
+      const { data: cliente, error } = await supabase
+        .from('usuarios')
+        .select('nome')
+        .eq('cpf', cpfNumeros)
+        .single();
+
+      if (error || !cliente) {
+        return { status: 'BLOQUEIO' };
       }
+
+      const cpfMascarado =
+        '•••.•••.' + cpfNumeros.slice(6, 9) + '-' + cpfNumeros.slice(9);
+        
+      return { status: 'ACESSO_DIRETO', nome: cliente.nome, cpfMascarado };
       
-
-      return delay({ status: 'ACESSO_DIRETO', nome: cliente.nome, cpfMascarado });
+    } catch (err) {
+      console.error('Erro na identificação:', err);
+      return { status: 'BLOQUEIO' };
     }
-    
-   
-    return delay({ status: 'BLOQUEIO' });
   },
 
-  async autenticar(_cpf: string, senha: string): Promise<boolean> {
-    return delay(senha.trim().length > 0);
+  async autenticar(cpfNumeros: string, senhaDigitada: string): Promise<boolean> {
+    try {
+
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('cpf') 
+        .eq('cpf', cpfNumeros)
+        .eq('senha', senhaDigitada)
+        .single();
+
+      if (error || !data) {
+        return false; 
+      }
+
+      return true;
+      
+    } catch (err) {
+      console.error('Erro na autenticação:', err);
+      return false;
+    }
   },
 
-  
-  async listarCondominios(): Promise<Condominio[]> {
-    return delay([
-      { id: 'c1', nome: 'Residencial Jardim das Aces', endereco: 'Av. Ipiranga, 1200 — Porto Alegre/RS', papel: 'Síndico' },
-      { id: 'c2', nome: 'Edifício Mont Blanc', endereco: 'R. dos Andradas, 455 — Porto Alegre/RS', papel: 'Proprietário' },
-      { id: 'c3', nome: 'Condomínio Vista Verde', endereco: 'Av. Carlos Gomes, 890 — Porto Alegre/RS', papel: 'Morador' },
-    ]);
+  async listarCondominios(cpfUsuario: string): Promise<Condominio[]> {
+    try {
+      const { data, error } = await supabase
+        .from('vinculos')
+        .select(`
+          papel,
+          condominios (
+            id,
+            nome,
+            endereco
+          )
+        `)
+        .eq('usuario_cpf', cpfUsuario);
+
+      if (error) {
+        console.error('Erro ao listar condominios relacionais:', error);
+        return [];
+      }
+
+      if (!data) return [];
+
+      return data.map((item: any) => ({
+        id: String(item.condominios.id),
+        nome: item.condominios.nome,
+        endereco: item.condominios.endereco,
+        papel: item.papel
+      }));
+      
+    } catch (err) {
+      console.error('Erro de conexão:', err);
+      return [];
+    }
   },
 };
