@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'; // 💡 Conexão com o banco
+import { supabase } from './supabaseClient';
 
 export type StatusIdentificacao = 'ACESSO_DIRETO' | 'BLOQUEIO';
 
