@@ -113,31 +113,38 @@ A mesma API funciona no navegador e no app nativo, mantendo a lógica de persist
 - O `useMemo` filtra itens usando `papeis.toLowerCase().includes(papelUsuario)` ou `todos`.
 - Apenas os módulos compatíveis com o papel do usuário aparecem na tela.
 
-## ▶️ Execução
+## ✅ Instalação & Execução
 
-- Iniciar o Expo:
+Siga estes passos para clonar e executar o projeto localmente (substitua a URL do repositório pela sua):
+
+1. Clone o repositório e entre na pasta do projeto:
+
+```bash
+git clone https://github.com/Patriciasdr/auxi-desafio.git
+cd auxi-login
+```
+
+2. Instale as dependências:
+
+```bash
+npm install
+```
+
+3. Inicie o Expo (modo interativo):
 
 ```bash
 npx expo start
 ```
 
-- Android:
+Comandos úteis por plataforma:
 
 ```bash
 npx expo start --android
-```
-
-- iOS:
-
-```bash
 npx expo start --ios
-```
-
-- Web:
-
-```bash
 npx expo start --web
 ```
+
+Observação: os scripts equivalentes também estão disponíveis em `package.json` (por exemplo, `npm run android`).
 
 ## 📌 Observações
 
